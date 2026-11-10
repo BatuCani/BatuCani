@@ -106,3 +106,5 @@ Most days I run several coding agents in parallel and keep the product calls, th
 
 Glovio AI at [glovioai.com](https://glovioai.com) · Personal site and email: pending
 <!-- PENDING: personal site URL and a public email address. -->
+
+![Contributions for the last year. Carbon jogs in, kicks the weeks away, and cheers.](./dist/contrib.svg)
