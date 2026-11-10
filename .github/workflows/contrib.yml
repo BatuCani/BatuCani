@@ -1,0 +1,42 @@
+# Redraws the contribution graphic from the live calendar and publishes it to the output branch,
+# which the README reads. Main gets no render commits; every run replaces output with one commit.
+name: Contribution graphic
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [scripts/render-contrib.mjs, assets/carbon-sheet.webp, .github/workflows/contrib.yml]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: contrib-graphic
+  cancel-in-progress: true
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - name: Render
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          OUT_DIR: ${{ runner.temp }}/out
+        run: node scripts/render-contrib.mjs
+      - name: Publish to the output branch
+        working-directory: ${{ runner.temp }}/out
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          git init -q -b output
+          git add contrib-dark.svg contrib-light.svg
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -qm "Render contribution graphic"
+          git push -qf "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" output
